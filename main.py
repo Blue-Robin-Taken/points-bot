@@ -99,6 +99,8 @@ WHERE guild = {ctx.guild.id} AND user={user.id};""")
 
 @bot.command(name='points_remove')  # same as points_add but points are negative
 async def points_remove(ctx, user: discord.User, points: int):
+    if not await test_perms(ctx, ctx.author.roles):
+        return await ctx.respond("You are not authorized to use this command.", ephemeral=True)
     amount = None  # if it isn't changed, this would be a bug
     ref = cur.execute(f"""SELECT * FROM points
 WHERE guild = {ctx.guild.id} AND user={user.id};""")
@@ -125,6 +127,8 @@ WHERE user={user.id} AND guild={ctx.guild.id};""")
 
 @bot.command(name='points_reset')
 async def points_reset(ctx, user: discord.User):
+    if not await test_perms(ctx, ctx.author.roles):
+        return await ctx.respond("You are not authorized to use this command.", ephemeral=True)
     amount = None  # if it isn't changed, this would be a bug
     ref = cur.execute(f"""SELECT * FROM points
 WHERE guild = {ctx.guild.id} AND user={user.id};""")
