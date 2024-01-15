@@ -1,0 +1,8 @@
+# created by virtualenv automatically
+.idea
+Lib
+Scripts
+pvenv.cfg
+points.db
+settings.db
+*.db
