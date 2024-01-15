@@ -2,7 +2,7 @@
 .idea
 Lib
 Scripts
-pvenv.cfg
+pyvenv.cfg
 points.db
 settings.db
 *.db
