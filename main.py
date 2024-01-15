@@ -3,6 +3,7 @@ import os
 import sqlite3
 
 import settings
+from settings import settings_cur, settings_db
 
 bot = discord.Bot()
 
@@ -35,8 +36,23 @@ async def on_ready():
     print('Ready!')
 
 
+async def test_perms(ctx, user_roles):
+    ref = settings_cur.execute(
+        f"""
+                SELECT * FROM settings
+    WHERE guild = {ctx.guild.id};"""
+    )
+    fetch_one = ref.fetchone()
+    if int(fetch_one[1]) in [role.id for role in user_roles]:
+        return True
+    return False
+
+
 @bot.command(name='points_add')
 async def points_add(ctx, user: discord.User, points: int):
+    if not await test_perms(ctx, ctx.author.roles):
+        return await ctx.respond("You are not authorized to use this command.", ephemeral=True)
+
     amount = None  # if it isn't changed, this would be a bug
     ref = cur.execute(f"""SELECT * FROM points
 WHERE guild = {ctx.guild.id} AND user={user.id};""")
@@ -133,6 +149,7 @@ WHERE user={user.id} AND guild={ctx.guild.id};""")
         color=discord.Color.random()
     )
     await ctx.respond(embed=embed)
+
 
 load_cogs()
 bot.run(str(os.getenv('BOT_TOKEN')))

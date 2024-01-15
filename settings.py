@@ -6,7 +6,7 @@ import sqlite3
 import discord
 from discord.ext import commands
 import discord.ui
-from discord.ui import View, Button, Select
+from discord.ui import View, Select
 
 settings_db = sqlite3.connect("settings.db")
 settings_cur = settings_db.cursor()
@@ -50,7 +50,8 @@ class SettingsCog(commands.Cog):
                 await interaction.response.send_message("test")
 
             else:
-                await interaction.response.send_message("You need administrator privileges to access this.", ephemeral=True)
+                await interaction.response.send_message("You need administrator privileges to access this.",
+                                                        ephemeral=True)
 
     @command_group.command()
     async def set(self, ctx, choice_type: discord.Option(str, choices=convert_list_to_options(["PermRoles"]))):
@@ -64,5 +65,24 @@ class SettingsCog(commands.Cog):
             else:
                 await ctx.respond("Error")
 
+        else:
+            await ctx.respond("You need administrator privileges to access this.", ephemeral=True)
+
+    @command_group.command()
+    async def view(self, ctx):
+        if ctx.user.guild_permissions.administrator:
+            ref = settings_cur.execute(
+                f"""
+                        SELECT * FROM settings
+            WHERE guild = {ctx.guild.id};"""
+            )
+            fetch_one = ref.fetchone()
+            embed = discord.Embed(
+                title=f"Settings for {ctx.guild.name}",
+                description=f"Role ID for accessing points logger: {fetch_one[1]}",
+                color=discord.Color.random()
+            )
+            embed.set_footer(text="If you wanted to ping the role, it would be <@&(roleid)>")
+            await ctx.respond(embed=embed)
         else:
             await ctx.respond("You need administrator privileges to access this.", ephemeral=True)
